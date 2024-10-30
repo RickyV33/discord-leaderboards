@@ -1,3 +1,4 @@
+from discord import Message
 from dotenv import dotenv_values
 from typing import Any
 
@@ -18,12 +19,11 @@ class ChannelScorer:
     def init(self, discord_channel_id: int) -> None:
         with self.database:
             Game.create(game_name=self.game, channel_id=discord_channel_id).save()
-
     
-    def score(self, message: str) -> int:
-        if not self.api.is_valid(message):
-            raise Exception(f"Unable to score message: {message}")
-        score = self.api.score(message) 
+    def score(self, message: Message) -> int:
+        if not self.api.is_valid(message.content):
+            raise Exception(f"Unable to score message: {message.id}")
+        return self.api.score(message.content) 
     
     def is_valid(self, content: str) -> bool:
         return self.api.is_valid(content)
