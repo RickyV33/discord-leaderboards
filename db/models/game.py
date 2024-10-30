@@ -1,6 +1,7 @@
 from peewee import AutoField, CharField, ForeignKeyField
 
-from db.models import BaseModel, Channel
+from db.models.base import BaseModel
+from db.models.channel import Channel
 
 
 class Game(BaseModel):

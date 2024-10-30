@@ -1,36 +1,32 @@
 from dotenv import dotenv_values
-from typing import Any, TypedDict
+from typing import Any
 
-from db import LeaderboardDatabase, Game
-from rules import GameRuleFetcher, GameRule
+from db.leaderboard_db import LeaderboardDatabase
+from db.models.game import Game
+from games.game_api import GameApi
+from games.games import Games 
+
 
 config = dotenv_values(".env")
 
 class ChannelScorer:
-    def __init__(self, *, channel_name: str, rules: GameRuleFetcher, database: LeaderboardDatabase) -> Any:
-        self.channel_name = channel_name
-        self.rule: GameRule = rules.get_rules(channel_name)
+    def __init__(self, *, game: Games.FRAMED, api: GameApi, database: LeaderboardDatabase) -> Any:
+        self.game = game
+        self.api =  api
         self.database = database
 
-
-    def score(self, message_text: str) -> int:
-        pass
-    
-    def get_game_for_channel(self, channel_id: int) -> TypedDict: # type: ignore
-        with self.database as connection:
-            connection.cursor.execute("SELECT game_name FROM game WHERE channel_id = ?", (channel_id,))
-            game = connection.cursor.fetchone()
-            return game
-    
-    def is_valid(self, message_text: str) -> bool:
-        # return self.score(message_text) >= self.rule.threshold
-        return True
-    
-    def initialize(self, game_to_channels: dict[str, int]) -> None:
+    def init(self, discord_channel_id: int) -> None:
         with self.database:
-            self._create_game_to_channel_mapping(game_to_channels)
+            Game.create(game_name=self.game, channel_id=discord_channel_id).save()
 
-    def _create_game_to_channel_mapping(self, game_to_channels: dict[str, int]):
-        for game, channel_id in game_to_channels.items():
-            Game.create(game_name=game, channel_id=channel_id).save()
+    
+    def score(self, message: str) -> int:
+        if not self.api.is_valid(message):
+            raise Exception(f"Unable to score message: {message}")
+        score = self.api.score(message) 
+    
+    def is_valid(self, content: str) -> bool:
+        return self.api.is_valid(content)
+
+        
 

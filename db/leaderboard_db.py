@@ -1,7 +1,10 @@
-from dotenv import dotenv_values
 from peewee import Database
 
-from db.models import Channel, Game, Score, User
+from db.models.channel import Channel
+from db.models.game import Game
+from db.models.score import Score
+from db.models.user import User
+
 
 class LeaderboardDatabase:
 
@@ -9,7 +12,7 @@ class LeaderboardDatabase:
         self.db = db
 
     def __enter__(self):
-        self.db.connect()
+        self.db.connect(reuse_if_open=True)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

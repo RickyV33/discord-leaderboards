@@ -1,6 +1,6 @@
 from peewee import AutoField, CharField
 
-from db.models import BaseModel
+from db.models.base import BaseModel
 
 
 class Channel(BaseModel):

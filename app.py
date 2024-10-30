@@ -3,10 +3,13 @@ from dotenv import dotenv_values
 from peewee import SqliteDatabase
 
 from channels.channel_scorer import ChannelScorer
-from channels import ChannelScorerFetcher
+from channels.channel_scorer_provider import ChannelScorerProvider
 from db.leaderboard_db import LeaderboardDatabase
 from discord_bot import DiscordBot
-from rules.game_rule import FramedGameRule, GameRule
+from games.framed_game_api import FramedGameApi
+from games.games import Games
+from games.rules.game_rule import FramedGameRule
+
 
 config = dotenv_values(".env")
 
@@ -30,14 +33,17 @@ def parse_score(user, game, content):
     conn.close()
 
 if __name__ == '__main__':
-    framed_rule = FramedGameRule(rule=GameRule("Framed", 6, ["🟥", "🟩", "⬛", "🎥"]))
     sqlite = SqliteDatabase(config["DB_NAME"])
     database = LeaderboardDatabase(sqlite)
     with database:
         database.initialize()
-    framed_scorer = ChannelScorer(name="framed", database=database, rules=framed_rule)
-    framed_scorer.initialize({ "Framed": config["DISCORD_FRAMED_CHANNEL_ID"] })
-    channel_scorer_fetcher = ChannelScorerFetcher()
-    channel_scorer_fetcher.add(framed_scorer)
-    bot = DiscordBot(token=config["DISCORD_TOKEN"], channel_scorer_fetcher=channel_scorer_fetcher)
+
+    framed_api = FramedGameApi(rule=FramedGameRule())
+    framed_scorer = ChannelScorer(game=Games.FRAMED, database=database, api=framed_api)
+    framed_scorer.init(config["DISCORD_FRAMED_CHANNEL_ID"])
+
+    channel_provider = ChannelScorerProvider()
+    channel_provider.add(framed_scorer)
+
+    bot = DiscordBot(token=config["DISCORD_TOKEN"], channel_scorer_fetcher=channel_provider)
     bot.run()

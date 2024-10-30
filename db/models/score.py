@@ -1,6 +1,9 @@
 from peewee import AutoField, DateTimeField, IntegerField, ForeignKeyField
 
-from db.models import BaseModel, User, Game
+from db.models.base import BaseModel
+from db.models.game import Game
+from db.models.user import User
+
 
 
 class Score(BaseModel):
