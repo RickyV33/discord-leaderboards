@@ -1,1 +1,4 @@
-discord
+discord~=1.0.1
+python-dotenv~=1.0.1
+watchdog~=2.1.2
+peewee~=3.17.7

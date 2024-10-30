@@ -1,22 +1,43 @@
-import discord
+import sqlite3
+from dotenv import dotenv_values
+from peewee import SqliteDatabase
 
-intents = discord.Intents.default()
-intents.messages = True
+from channels.channel_scorer import ChannelScorer
+from channels import ChannelScorerFetcher
+from db.leaderboard_db import LeaderboardDatabase
+from discord_bot import DiscordBot
+from rules.game_rule import FramedGameRule, GameRule
 
-client = discord.Client(intents = intents)
+config = dotenv_values(".env")
 
+def get_game(channel):
+    conn = sqlite3.connect("leaderboard.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM game WHERE channel_id = ?", (channel.id,))
+    game = cursor.fetchone()
+    conn.close()
+    return game
 
-@client.event
-async def on_ready():
-    print(f'We have logged in as {client.user}')
+def parse_score(user, game, content):
+    conn = sqlite3.connect("leaderboard.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM user WHERE discord_user_id = ?", (user.id,))
+    user = cursor.fetchone()
+    cursor.execute("SELECT * FROM game WHERE game_name = ?", (game,))
+    game = cursor.fetchone()
+    cursor.execute("INSERT INTO score (user_id, game_id, score, date_submitted) VALUES (?, ?, ?, ?)", (user[0], game[0], content, "2020-08-06"))
+    conn.commit()
+    conn.close()
 
-@client.event
-async def on_message(message):
-    # channelIDsToListen = [ 12345, 54321 ] # put the channels that you want to listen to here
-    # if message.channel.id in channelIDsToListen:
-    #     if message.content != "" :
-    #         messages.append(message.content)
-    #     print("New message: " + message.content)
-    
-    
-client.run('TOKENHERE')
+if __name__ == '__main__':
+    framed_rule = FramedGameRule(rule=GameRule("Framed", 6, ["🟥", "🟩", "⬛", "🎥"]))
+    sqlite = SqliteDatabase(config["DB_NAME"])
+    database = LeaderboardDatabase(sqlite)
+    with database:
+        database.initialize()
+    framed_scorer = ChannelScorer(name="framed", database=database, rules=framed_rule)
+    framed_scorer.initialize({ "Framed": config["DISCORD_FRAMED_CHANNEL_ID"] })
+    channel_scorer_fetcher = ChannelScorerFetcher()
+    channel_scorer_fetcher.add(framed_scorer)
+    bot = DiscordBot(token=config["DISCORD_TOKEN"], channel_scorer_fetcher=channel_scorer_fetcher)
+    bot.run()
