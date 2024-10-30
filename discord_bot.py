@@ -20,11 +20,13 @@ class DiscordBot:
             author = message.author
             if (author == self.client.user):
                 return
-            if self.channel_scorer_fetcher.exists(message.channel.name):
-                channel_scorer = self.channel_scorer_fetcher.get(message.channel.name)
-                if channel_scorer.is_valid(message.content):
-                    score = channel_scorer.score(message)
-                    await message.channel.send(f"Scored {score} points! Great job {author}!")
+            if not self.channel_scorer_fetcher.exists(message.channel.name):
+                return 
+            channel_scorer = self.channel_scorer_fetcher.get(message.channel.name)
+            if not channel_scorer.is_valid(message.content):
+                return 
+            score = channel_scorer.score(message)
+            await message.channel.send(f"Scored {score} points! Great job {author}!")
 
     def run(self):
         self.setup_events()
