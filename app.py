@@ -1,3 +1,4 @@
+import asyncio
 import sys
 from dotenv import dotenv_values
 from peewee import SqliteDatabase
@@ -15,9 +16,9 @@ from games.rules.game_rule import FramedGameRule
 config = dotenv_values(".env")
 
 
-if __name__ == "__main__":
+def main():
     if config["ENV"] == "dev":
-        action = Actions.RUN
+        action = Actions.BACKFILL
     else:
         if len(sys.argv) != 2:
             raise ValueError(
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     if action == Actions.RUN:
         bot.run()
     elif action == Actions.BACKFILL:
-        pass
+        bot.backfill()
     elif action == Actions.INIT_DB:
         with database:
             database.initialize()
@@ -55,3 +56,7 @@ if __name__ == "__main__":
         framed_scorer.init()
     else:
         raise ValueError(f"Invalid action: {action}")
+
+
+if __name__ == "__main__":
+    main()

@@ -2,5 +2,6 @@
 .DS_Store
 .venv
 .devcontainer
-*.db
+leaderboard.db
+**.db
 *.sql

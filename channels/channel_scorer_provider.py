@@ -8,12 +8,14 @@ class ChannelScorerProvider:
         self.fetcher: dict[str, ChannelScorer] = {}
 
     def add(self, channel_scorer: ChannelScorer):
-        game: Games = channel_scorer.game
-        self.fetcher[game.discord_channel_name.value] = channel_scorer
+        discord_channel_id: str = channel_scorer.get_discord_channel_id()
+        self.fetcher[discord_channel_id] = channel_scorer
 
-    def exists(self, channel_name: str) -> bool:
-        channel = DiscordChannel(channel_name)
-        return channel.value in self.fetcher
+    def exists(self, discord_channel_id: str) -> bool:
+        return discord_channel_id in self.fetcher
 
-    def get(self, channel_name: str) -> ChannelScorer:
-        return self.fetcher[channel_name]
+    def get(self, discord_channel_id: str) -> ChannelScorer:
+        return self.fetcher[discord_channel_id]
+
+    def get_discord_channel_ids(self) -> list[str]:
+        return list(self.fetcher.keys())

@@ -68,6 +68,7 @@ class ChannelScorer:
                 date_submitted=message.created_at,
             ).on_conflict_replace().execute()
 
+        print(f"Succesfully scored message: {message.id}")
         return score
 
     def is_valid(self, content: str) -> bool:
@@ -75,3 +76,6 @@ class ChannelScorer:
 
     def get_reaction(self) -> str:
         return self.api.get_reaction()
+
+    def get_discord_channel_id(self) -> str:
+        return self.channel_settings.channel_id

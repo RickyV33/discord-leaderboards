@@ -45,12 +45,12 @@ class FramedGameApi(GameApi):
         return round
 
     def is_valid(self, message_text: str) -> bool:
+        if message_text.count("Framed") != 1:
+            return False
         if message_text.count("🎥") != 1:
             return False
-
         if not any(char in message_text for char in self.rule.acceptable_chars):
             return False
-
         if (
             self.score(message_text) < 0
             or self.score(message_text) > self.rule.max_score
