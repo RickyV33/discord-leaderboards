@@ -1,5 +1,6 @@
 from abc import ABC
 
+
 class GameApi(ABC):
 
     @property
@@ -7,6 +8,9 @@ class GameApi(ABC):
         pass
 
     def score(self, message_text: str) -> int:
+        pass
+
+    def round(self, message_text: str) -> int:
         pass
 
     def is_valid(self, message_text: str) -> bool:

@@ -9,7 +9,6 @@ class ChannelScorerProvider:
 
     def add(self, channel_scorer: ChannelScorer):
         game: Games = channel_scorer.game
-        print(f"Adding {game.discord_channel_name} to fetcher")
         self.fetcher[game.discord_channel_name.value] = channel_scorer
 
     def exists(self, channel_name: str) -> bool:

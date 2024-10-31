@@ -7,4 +7,4 @@ from db.models.channel import Channel
 class Game(BaseModel):
     id = AutoField()
     game_name = CharField()
-    channel = ForeignKeyField(Channel, backref='games')
+    channel = ForeignKeyField(Channel, backref="games")

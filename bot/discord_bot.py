@@ -13,18 +13,18 @@ class DiscordBot:
     def setup_events(self):
         @self.client.event
         async def on_ready():
-            print(f'We have logged in as {self.client.user}')
+            print(f"We have logged in as {self.client.user}")
 
         @self.client.event
         async def on_message(message: Message):
             author = message.author
-            if (author == self.client.user):
+            if author == self.client.user:
                 return
             if not self.channel_scorer_fetcher.exists(message.channel.name):
-                return 
+                return
             handler = self.channel_scorer_fetcher.get(message.channel.name)
             if not handler.is_valid(message.content):
-                return 
+                return
             score = handler.score(message)
             await message.channel.send(f"Scored {score} points! Great job {author}!")
 
