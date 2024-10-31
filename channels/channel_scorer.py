@@ -55,14 +55,14 @@ class ChannelScorer:
         score = self.api.score(message.content)
         round = self.api.round(message.content)
         with self.database:
-            user = User.get_or_create(
+            user_id, _ = User.get_or_create(
                 discord_user_id=discord_user_id, discord_name=message.author.name
             )
-            channel = Channel.get(channel_id=channel_id)
-            game = Game.get(game_name=self.game, channel=channel)
+            channel_id = Channel.get(discord_channel_id=channel_id)
+            game_id = Game.get(game_name=self.game, channel=channel_id)
             Score.insert(
-                user=user,
-                game=game,
+                user=user_id,
+                game=game_id,
                 score=score,
                 round=round,
                 date_submitted=message.created_at,
@@ -72,3 +72,6 @@ class ChannelScorer:
 
     def is_valid(self, content: str) -> bool:
         return self.api.is_valid(content)
+
+    def get_reaction(self) -> str:
+        return self.api.get_reaction()

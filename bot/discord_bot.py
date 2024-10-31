@@ -25,8 +25,15 @@ class DiscordBot:
             handler = self.channel_scorer_fetcher.get(message.channel.name)
             if not handler.is_valid(message.content):
                 return
-            score = handler.score(message)
-            await message.channel.send(f"Scored {score} points! Great job {author}!")
+            handler.score(message)
+            has_reaction = False
+            for reaction in message.reactions:
+                is_bot = reaction.me
+                if reaction.emoji == handler.get_reaction() and is_bot:
+                    has_reaction = True
+                    break
+            if not has_reaction:
+                await message.add_reaction(handler.get_reaction())
 
     def run(self):
         self.setup_events()

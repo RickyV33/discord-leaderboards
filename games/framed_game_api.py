@@ -40,7 +40,9 @@ class FramedGameApi(GameApi):
         Framed #123
         🎥 🟩 ⬛ ⬛ ⬛ ⬛ ⬛
         """
-        return int(message_text.split("#")[1].strip())
+        lines = message_text.splitlines()
+        round = int(lines[0].split("#")[1].strip())
+        return round
 
     def is_valid(self, message_text: str) -> bool:
         if message_text.count("🎥") != 1:
@@ -56,3 +58,6 @@ class FramedGameApi(GameApi):
             return False
 
         return True
+
+    def get_reaction(self) -> str:
+        return self.rule.reaction_response

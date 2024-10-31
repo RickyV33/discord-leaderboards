@@ -15,3 +15,6 @@ class GameApi(ABC):
 
     def is_valid(self, message_text: str) -> bool:
         pass
+
+    def get_reaction(self) -> str:
+        pass
