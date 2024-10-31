@@ -28,6 +28,6 @@ class LeaderboardDatabase:
         self.db.create_tables([Game, Channel, User, Score])
 
     def initialize(self):
-        print(json.dumps({"message": "Initializing database"}, indent=2))
+        print("Initializing database")
         self._create_tables()
-        print(json.dumps({"message": "Database initialized"}, indent=2))
+        print("Database initialized")

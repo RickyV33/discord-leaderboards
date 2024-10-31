@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from discord import Message, Intents, Client
 
 from channels.channel_scorer_provider import ChannelScorerProvider
@@ -13,7 +14,6 @@ class DiscordBot:
     async def _handle_scoring(self, message: Message):
         author = message.author
         if author == self.client.user:
-            print(f"Skipping bot message: {message.id}")
             return
         discord_channel_id = str(message.channel.id)
         if not self.channel_scorer_fetcher.exists(discord_channel_id):
@@ -56,22 +56,24 @@ class DiscordBot:
             for (
                 discord_channel_id
             ) in self.channel_scorer_fetcher.get_discord_channel_ids():
-                print(f"Getting channel: {discord_channel_id}")
                 discord_channel = self.client.get_channel(int(discord_channel_id))
-                print(f"Processing channel: {discord_channel.name}")
+                print(f"Backfilling channel: {discord_channel.name}")
                 chunk_size = 100
-                after = None
+                handler = self.channel_scorer_fetcher.get(discord_channel_id)
+                after: datetime = handler.last_scored_game().created_at
+
+                total_messages = 0
                 while iterator := discord_channel.history(
                     limit=chunk_size, after=after, oldest_first=True
                 ):
                     messages = [message async for message in iterator]
                     if len(messages) == 0:
                         break
-
-                    print(f"Processing {len(messages)} messages")
+                    total_messages += len(messages)
                     for message in messages:
                         await self._handle_scoring(message)
                     after = messages[-1].created_at
+                print(f"Processed {total_messages} messages")
 
     def backfill(self):
         self._setup_backfill_events()

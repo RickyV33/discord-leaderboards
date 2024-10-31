@@ -1,5 +1,4 @@
 from channels.channel_scorer import ChannelScorer
-from channels.discord_channel import DiscordChannel
 from games.games import Games
 
 

@@ -18,7 +18,7 @@ config = dotenv_values(".env")
 
 def main():
     if config["ENV"] == "dev":
-        action = Actions.BACKFILL
+        action = Actions.RUN
     else:
         if len(sys.argv) != 2:
             raise ValueError(
@@ -31,7 +31,7 @@ def main():
     framed_api = FramedGameApi(rule=FramedGameRule())
     framed_channel = DiscordChannelSettings(
         instance_id=config["DISCORD_INSTANCE_ID"],
-        channel_id=config["DISCORD_PLAYGROUND_CHANNEL_ID"],
+        channel_id=config["DISCORD_FRAMED_CHANNEL_ID"],
     )
     framed_scorer = ChannelScorer(
         game=Games.FRAMED,

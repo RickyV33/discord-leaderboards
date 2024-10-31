@@ -25,27 +25,20 @@ class ChannelScorer:
         database: LeaderboardDatabase,
         channel_settings: DiscordChannelSettings,
     ) -> Any:
-        self.game = game
-        self.api = api
-        self.database = database
-        self.channel_settings = channel_settings
+        self.game: Games = game
+        self.api: GameApi = api
+        self.database: LeaderboardDatabase = database
+        self.channel_settings: DiscordChannelSettings = channel_settings
 
     def init(self) -> None:
         with self.database:
-            print(
-                json.dumps(
-                    {
-                        "message": "Initializing channels",
-                        "channel": self.channel_settings.to_dict(),
-                    },
-                    indent=2,
-                )
-            )
-            channel = Channel.get_or_create(
+            print(f"Initializing channels for {self.game}")
+            print(f"Channel settings: {self.channel_settings.to_dict()}")
+            channel_id, _ = Channel.get_or_create(
                 discord_channel_id=self.channel_settings.channel_id,
                 discord_instance_id=self.channel_settings.instance_id,
             )
-            Game.get_or_create(game_name=self.game, channel_id=channel)
+            Game.get_or_create(game_name=self.game.value, channel_id=channel_id)
 
     def score(self, message: Message) -> int:
         if not self.api.is_valid(message.content):
@@ -59,7 +52,7 @@ class ChannelScorer:
                 discord_user_id=discord_user_id, discord_name=message.author.name
             )
             channel_id = Channel.get(discord_channel_id=channel_id)
-            game_id = Game.get(game_name=self.game, channel=channel_id)
+            game_id = Game.get(game_name=self.game.value, channel=channel_id)
             Score.insert(
                 user=user_id,
                 game=game_id,
@@ -68,7 +61,6 @@ class ChannelScorer:
                 date_submitted=message.created_at,
             ).on_conflict_replace().execute()
 
-        print(f"Succesfully scored message: {message.id}")
         return score
 
     def is_valid(self, content: str) -> bool:
@@ -79,3 +71,15 @@ class ChannelScorer:
 
     def get_discord_channel_id(self) -> str:
         return self.channel_settings.channel_id
+
+    def last_scored_game(self) -> Score:
+        with self.database:
+            result: Score = (
+                Score.select()
+                .join(Game)
+                .where(Game.game_name == self.game.value)
+                .order_by(Score.created_at.asc())
+                .get()
+            )
+
+            return result
