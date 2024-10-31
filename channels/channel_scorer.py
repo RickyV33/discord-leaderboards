@@ -23,7 +23,18 @@ class ChannelScorer:
     def score(self, message: Message) -> int:
         if not self.api.is_valid(message.content):
             raise Exception(f"Unable to score message: {message.id}")
-        return self.api.score(message.content) 
+        discord_user_id = message.author.id
+        channel_id = message.channel.id
+        score = self.api.score(message.content) 
+        with self.database:
+            # fetch user
+            # fetch channel
+            # fetch game
+            Game.find_by_name(self.game)
+            # persist score 
+            pass
+        
+        return score
     
     def is_valid(self, content: str) -> bool:
         return self.api.is_valid(content)

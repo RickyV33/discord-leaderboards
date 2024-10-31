@@ -22,10 +22,10 @@ class DiscordBot:
                 return
             if not self.channel_scorer_fetcher.exists(message.channel.name):
                 return 
-            channel_scorer = self.channel_scorer_fetcher.get(message.channel.name)
-            if not channel_scorer.is_valid(message.content):
+            handler = self.channel_scorer_fetcher.get(message.channel.name)
+            if not handler.is_valid(message.content):
                 return 
-            score = channel_scorer.score(message)
+            score = handler.score(message)
             await message.channel.send(f"Scored {score} points! Great job {author}!")
 
     def run(self):
