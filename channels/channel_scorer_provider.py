@@ -1,20 +1,30 @@
+from typing import Any
 from channels.channel_scorer import ChannelScorer
-from games.games import Games
+from db.models.channel import Channel
+from db.models.game import Game
+from db.models.score import Score
+from games.game_api_provider import GameApiProvider
 
 
 class ChannelScorerProvider:
-    def __init__(self):
-        self.fetcher: dict[str, ChannelScorer] = {}
 
-    def add(self, channel_scorer: ChannelScorer):
-        discord_channel_id: str = channel_scorer.get_discord_channel_id()
-        self.fetcher[discord_channel_id] = channel_scorer
+    def __init__(
+        self,
+        game_api_provider: GameApiProvider,
+        game_db_api: Game,
+        score_db_api: Score,
+        channel_db_api: Channel
+    ) -> Any:
+        self.game_api_provider: GameApiProvider = game_api_provider
+        self.game_db_api: Game = game_db_api
+        self.score_db_api = score_db_api
+        self.channel_db_api = channel_db_api
 
-    def exists(self, discord_channel_id: str) -> bool:
-        return discord_channel_id in self.fetcher
-
-    def get(self, discord_channel_id: str) -> ChannelScorer:
-        return self.fetcher[discord_channel_id]
-
-    def get_discord_channel_ids(self) -> list[str]:
-        return list(self.fetcher.keys())
+    def provide(self, channel_id: str) -> ChannelScorer:
+        return ChannelScorer(
+            channel_id=channel_id,
+            game_api_provider=self.game_api_provider,
+            game_db_api=self.game_db_api,
+            score_db_api=self.score_db_api,
+            channel_db_api=self.channel_db_api
+        )

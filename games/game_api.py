@@ -1,10 +1,12 @@
 from abc import ABC
 
+from games.game_type import GameType
+
 
 class GameApi(ABC):
 
     @property
-    def name(self) -> str:
+    def name(self) -> GameType:
         pass
 
     def score(self, message_text: str) -> int:

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from games.games import Games
+from games.game_type import GameType
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -14,7 +14,7 @@ class GameRule:
 class FramedGameRule(GameRule):
     def __init__(self):
         super().__init__(
-            name=Games.FRAMED,
+            name=GameType.FRAMED,
             max_score=6,
             acceptable_chars=["🟥", "🟩", "⬛", "🎥"],
             reaction_response="🎥",

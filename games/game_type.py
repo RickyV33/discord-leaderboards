@@ -1,5 +1,5 @@
 from enum import Enum
 
 
-class Games(Enum):
+class GameType(Enum):
     FRAMED = "Framed"

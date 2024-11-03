@@ -4,7 +4,6 @@ from enum import Enum
 class Actions(Enum):
     RUN = "run"
     INIT_DB = "init_db"
-    INIT_CHANNELS = "init_channels"
     BACKFILL = "backfill"
 
     @classmethod
