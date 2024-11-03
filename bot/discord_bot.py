@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from discord import Client, Message
 
@@ -30,12 +31,15 @@ class DiscordBot:
         handler: ChannelScorer = self.channel_scorer_provider.provide(
             channel.id)
         try:
-            handler.score(message)
+            score, is_counted = handler.score(message)
+            await self.ack(handler, is_counted, message)
+            print(f"Scored message: {message.id} for user {
+                  message.author} with score: {score} as counted: {is_counted}")
         except Exception as e:
-            print(e)
-        await self.ack(handler, message)
+            if not str(e).startswith("Unable to score message"):
+                print(e)
 
-    async def ack(self, handler: ChannelScorer, message: Message):
+    async def ack(self, handler: ChannelScorer, is_counted: bool, message: Message):
         has_reaction = False
         for reaction in message.reactions:
             is_bot = reaction.me
@@ -43,10 +47,12 @@ class DiscordBot:
                 has_reaction = True
                 break
         if has_reaction:
-            print(f"Already reacted to message: {message.id}")
             return
         print(f"Adding reaction to message: {message.id}")
-        await message.add_reaction(handler.get_reaction())
+        if is_counted:
+            await message.add_reaction(handler.get_reaction())
+        else:
+            await message.add_reaction("❌")
 
     def _setup_events(self):
         @self.client.event
@@ -55,7 +61,9 @@ class DiscordBot:
 
         @self.client.event
         async def on_message(message: Message):
-            if message.content.startswith("!framed"):
+            if message.content.lower().startswith("!gooner"):
+                self._handle_command(message)
+            elif message.content.lower().startswith("!framed"):
                 self._handle_command(message)
             else:
                 await self._handle_scoring(message)
@@ -72,14 +80,18 @@ class DiscordBot:
             discord_channel = self.client.get_channel(
                 int(channel.discord_channel_id))
             print(f"Backfilling channel: {discord_channel.name}-{channel_id}")
-            chunk_size = 25
+            chunk_size = 50
             handler: ChannelScorer = self.channel_scorer_provider.provide(
                 channel.id)
             last_game = handler.last_scored_game()
-            after: datetime = last_game.created_at
+            after = None
+            if last_game:
+                after = discord_channel.get_partial_message(
+                    int(last_game.discord_message_id))  # type: ignore
 
             total_messages = 0
-            print(f"Starting backfill from {last_game.id}-{after}")
+            print(f"Starting backfill from {
+                  after.created_at if after else 'beginning'}")
             while iterator := discord_channel.history(
                 limit=chunk_size, after=after, oldest_first=True
             ):
@@ -90,6 +102,9 @@ class DiscordBot:
                 for message in messages:
                     await self._handle_scoring(message)
                 after = messages[-1].created_at
+                # 50 requests per second
+                one_second = 1
+                await asyncio.sleep(one_second)
             print(f"Processed {total_messages} messages")
 
     def backfill(self, channel_id: str):

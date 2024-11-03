@@ -35,6 +35,9 @@ class FramedGameApi(GameApi):
             raise Exception(f"Score exceeds limit: {score}")
         return score
 
+    def max_score(self) -> int:
+        return self.rule.max_score
+
     def round(self, message_text: str) -> int:
         """
         Framed #123

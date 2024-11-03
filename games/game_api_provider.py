@@ -11,4 +11,6 @@ class GameApiProvider:
         }
 
     def provide(self, game: GameType) -> GameApi:
+        if game not in self.game_apis:
+            raise ValueError(f"Game API not found for game: {game}")
         return self.game_apis[game]

@@ -8,5 +8,5 @@ from db.models.game import Game
 class Channel(BaseModel):
     id = AutoField()
     discord_channel_id = CharField()
-    discord_instance_id = CharField()
-    game_id = ForeignKeyField(Game, backref="channels")
+    discord_server_id = CharField()
+    game = ForeignKeyField(Game, backref="channels")

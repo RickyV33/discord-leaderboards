@@ -7,16 +7,19 @@ class GameApi(ABC):
 
     @property
     def name(self) -> GameType:
-        pass
+        raise NotImplementedError
 
     def score(self, message_text: str) -> int:
-        pass
+        raise NotImplementedError
+
+    def max_score(self) -> int:
+        raise NotImplementedError
 
     def round(self, message_text: str) -> int:
-        pass
+        raise NotImplementedError
 
     def is_valid(self, message_text: str) -> bool:
-        pass
+        raise NotImplementedError
 
     def get_reaction(self) -> str:
-        pass
+        raise NotImplementedError
