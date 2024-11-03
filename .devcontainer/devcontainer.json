@@ -1,0 +1,43 @@
+{
+  "name": "goober-app",
+  "build": {
+    "context": ".",
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.13"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.tabSize": 4
+      },
+      "extensions": [
+        "donjayamanne.githistory",
+        "github.copilot",
+        "github.copilot-chat",
+        "esbenp.prettier-vscode",
+        "ms-python.vscode-pylance",
+        "ms-python.python",
+        "vscodevim.vim",
+        "ms-python.black-formatter",
+        "kevinrose.vsc-python-indent",
+        "eamodio.gitlens",
+        "davidanson.vscode-markdownlint",
+        "inferrinizzard.prettier-sql-vscode",
+        "github.vscode-github-actions",
+        "johnpapa.vscode-peacock",
+        "timonwong.shellcheck",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+
+  "mounts": [
+    "source=${localWorkspaceFolder}/.,target=/app,type=bind,consistency=cached",
+    "source=devcontainer-bashhistory,target=/commandhistory,type=volume"
+  ]
+}

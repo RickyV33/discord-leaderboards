@@ -5,11 +5,11 @@ from channels.channel_scorer_provider import ChannelScorerProvider
 
 
 class DiscordBot:
-    def __init__(self, *, token: str, channel_scorer_fetcher: ChannelScorerProvider):
+    def __init__(self, *, token: str, channel_scorer_provider: ChannelScorerProvider):
         self.token: str = token
         intents: Intents = Intents.all()
         self.client: Client = Client(intents=intents)
-        self.channel_scorer_fetcher: ChannelScorerProvider = channel_scorer_fetcher
+        self.channel_scorer_fetcher: ChannelScorerProvider = channel_scorer_provider
 
     async def _handle_scoring(self, message: Message):
         author = message.author
@@ -42,8 +42,11 @@ class DiscordBot:
             print(f"We have logged in as {self.client.user}")
 
         @self.client.event
-        async def on_message(message: Message):
-            await self._handle_scoring(message)
+        async def on_message(message: Message)j
+            if message.content.startswith("!framed"):
+                pass
+            else:
+                await self._handle_scoring(message)
 
     def run(self):
         self._setup_events()

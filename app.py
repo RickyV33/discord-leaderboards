@@ -22,7 +22,8 @@ def main():
     else:
         if len(sys.argv) != 2:
             raise ValueError(
-                f"Please provide an action to run. Try: {[action.value for action in Actions]}"
+                f"Please provide an action to run. Try: {
+                    [action.value for action in Actions]}"
             )
         action = Actions(sys.argv[1])
 
@@ -42,7 +43,7 @@ def main():
     channel_provider = ChannelScorerProvider()
     channel_provider.add(framed_scorer)
     bot = DiscordBot(
-        token=config["DISCORD_TOKEN"], channel_scorer_fetcher=channel_provider
+        token=config["DISCORD_TOKEN"], channel_scorer_provider=channel_provider
     )
 
     if action == Actions.RUN:
