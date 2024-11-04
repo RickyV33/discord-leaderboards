@@ -25,7 +25,6 @@ class Timeframe(Enum):
         else:
             raise ValueError(f"Invalid timeframe: {self}")
 
-    @property
     def to_days(self) -> int:
         if self == Timeframe.ALL:
             return 0
@@ -37,5 +36,20 @@ class Timeframe(Enum):
             return 30
         elif self == Timeframe.WEEK:
             return 7
+        else:
+            raise ValueError(f"Invalid timeframe: {self}")
+
+    @property
+    def human_readable(self) -> str:
+        if self == Timeframe.ALL:
+            return "all time"
+        elif self == Timeframe.YEAR:
+            return "the past year"
+        elif self == Timeframe.SIX_MONTHS:
+            return "the past six months"
+        elif self == Timeframe.MONTH:
+            return "the past month"
+        elif self == Timeframe.WEEK:
+            return "the past week"
         else:
             raise ValueError(f"Invalid timeframe: {self}")

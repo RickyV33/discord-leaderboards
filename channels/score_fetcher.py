@@ -1,6 +1,8 @@
-from datetime import datetime
+from datetime import date, datetime
 from discord import Message
 from typing import Any
+
+import pytz
 
 from channels.timeframe import Timeframe
 from channels.total_scores import TotalScores, UserScore
@@ -21,31 +23,38 @@ class ScoreFetcher:
         game_api_provider: GameApiProvider,
         game_db_api: Game,
         score_db_api: Score,
-        user_db_api: User
+        user_db_api: User,
+        channel_db_api: Channel,
     ) -> None:
         self.server_id = server_id
         self.game_db_api: Game = game_db_api
         self.score_db_api: Score = score_db_api
         self.user_db_api: User = user_db_api
+        self.channel_db_api: Channel = channel_db_api
         self.game_api_provider: GameApiProvider = game_api_provider
 
     def get(self, game_type: GameType, timeframe: Timeframe = Timeframe.ALL) -> TotalScores:
-        game = self.game_db_api.get_or_none(name=game_type)
-        total_possible = self._get_total_possible(game, timeframe)
+        game = self.game_db_api.get_or_none(name=game_type.value)
+        total_possible = self._get_total_possible_points(game, timeframe)
+        rounds = self._get_current_round(
+            game) - self._get_round_lower_bound(game, timeframe)
         return TotalScores(
             users=self._get_user_scores(game, timeframe),
-            total_possible=total_possible,
+            total_score=total_possible,
+            total_rounds=rounds,
             timeframe=timeframe,
             game=game_type,
-            with_missing=False
         )
 
     def _get_user_scores(self, game: Game, timeframe: Timeframe) -> list[UserScore]:
-        date_lower_bound = timeframe.datetime
+        round_lower_bound = self._get_round_lower_bound(game, timeframe)
+        channels = self.channel_db_api.get_or_none(
+            discord_server_id=self.server_id)
         scores = self.score_db_api.select().where(
             Score.game == game,
-            Score.date_submitted >= date_lower_bound if timeframe != Timeframe.ALL else True  # type: ignore
-        )
+            Score.round >= round_lower_bound,  # type: ignore
+            Score.channel.contains(channels)
+        ).execute()
         scores_by_user: dict[User, list[Score]
                              ] = self._populate_scores_by_user(scores)
         return [
@@ -64,17 +73,33 @@ class ScoreFetcher:
             scores_by_user[score.user].append(score)
         return scores_by_user
 
-    def _get_total_possible(self, game: Game, timeframe: Timeframe) -> int:
+    def _get_total_possible_points(self, game: Game, timeframe: Timeframe) -> int:
         game_api = self.game_api_provider.provide(GameType(game.name))
         max_score = game_api.max_score()
-        if timeframe != Timeframe.ALL:
-            total_possible = max_score * timeframe.to_days
+        if timeframe == Timeframe.ALL:
+            round_lb = self._get_round_lower_bound(game, timeframe)
+            total_rounds_played = self._get_current_round(game) - round_lb
+            total_possible = max_score * total_rounds_played
         else:
-            oldest_score = self.score_db_api.select().where(
-                Score.game == game
-            ).order_by(Score.date_submitted).first()
-            days_since_oldest = (
-                datetime.now() - oldest_score.date_submitted).days
-            total_possible = max_score * days_since_oldest
+            total_possible = max_score * timeframe.to_days()
 
         return total_possible
+
+    def _get_current_round(self, game: Game) -> int:
+        today_in_pacific: datetime = datetime.now(pytz.timezone("US/Pacific"))
+        days_since_anchor = (today_in_pacific.date() -
+                             game.date_anchor).days  # type: ignore
+        current_round = days_since_anchor + game.round_anchor
+        return current_round
+
+    def _get_round_lower_bound(self, game: Game, timeframe: Timeframe) -> int:
+        if timeframe == Timeframe.ALL:
+            channels = self.channel_db_api.get_or_none(
+                discord_server_id=self.server_id)
+            oldest_round = self.score_db_api.select().where(
+                Score.game == game,
+                Score.channel.contains(channels)
+            ).order_by(Score.round).first()
+            return oldest_round.round
+
+        return self._get_current_round(game) - timeframe.to_days()

@@ -5,6 +5,7 @@ from peewee import SqliteDatabase
 
 from actions import Actions
 from channels.channel_scorer_provider import ChannelScorerProvider
+from channels.score_fetcher_provider import ScoreFetcherProvider
 from db.leaderboard_db import LeaderboardDatabase
 from bot.discord_bot import DiscordBot
 from db.models.channel import Channel
@@ -32,13 +33,19 @@ def main():
     game_api_provider = GameApiProvider([framed_api])
     channel_provider = ChannelScorerProvider(
         game_api_provider, Game, Score, Channel, User)
+    score_fetcher_provider = ScoreFetcherProvider(
+        game_api_provider, Game, Score, Channel, User)
 
     token: str = str(config["DISCORD_TOKEN"])
     intents = Intents.all()
     discord_client: Client = Client(intents=intents)
 
     bot = DiscordBot(
-        discord_client=discord_client, token=token, channel_scorer_provider=channel_provider, channel_db_api=Channel
+        discord_client=discord_client,
+        token=token,
+        channel_scorer_provider=channel_provider,
+        channel_db_api=Channel,
+        score_fetcher_provider=score_fetcher_provider
     )
 
     if action == Actions.RUN:

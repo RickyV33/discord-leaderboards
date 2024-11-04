@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from games.game_api import GameApi
 from games.rules.game_rule import GameRule
 
