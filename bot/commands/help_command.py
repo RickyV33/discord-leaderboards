@@ -10,7 +10,7 @@ class HelpCommand(BaseCommand):
         commands = table2ascii(
             header=["Command", "Description"],
             body=[
-                ["!gooner score <timeframe>", "Get the current scores for the channel"],
+                ["!gooner score <timeframe>", "Get the current scores for all games"],
                 ["!gooner <game> score <timeframe>", "Get the current scores"],
                 ["!gooner register <game>", "Register a new game"],
                 ["!gooner help", "Show this message"],
