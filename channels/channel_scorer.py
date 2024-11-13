@@ -1,12 +1,10 @@
 from datetime import datetime
 from discord import Message
-from typing import Any
 
 from db.models.channel import Channel
 from db.models.game import Game
 from db.models.score import Score
 from db.models.user import User
-from games.game_api import GameApi
 from games.game_api_provider import GameApiProvider
 from games.game_type import GameType
 
@@ -20,7 +18,7 @@ class ChannelScorer:
         score_db_api: Score,
         channel_db_api: Channel,
         user_db_api: User,
-        game_api_provider: GameApiProvider
+        game_api_provider: GameApiProvider,
     ) -> None:
         self.channel_id = channel_id
         self.game_api_provider = game_api_provider
@@ -42,11 +40,15 @@ class ChannelScorer:
         )
         channel = self.channel_db_api.get_or_none(self.channel_id)
         game = self._get_game()
-        exists = self.score_db_api.select().where(
-            Score.user == user,
-            Score.round == round,
-            Score.game == game.id,
-        ).get_or_none()
+        exists = (
+            self.score_db_api.select()
+            .where(
+                Score.user == user,
+                Score.round == round,
+                Score.game == game.id,
+            )
+            .get_or_none()
+        )
 
         if exists:
             print(f"Score already exists for user: {
@@ -79,8 +81,7 @@ class ChannelScorer:
 
     def last_scored_game(self) -> Score:
         result = (
-            self.score_db_api
-            .select()
+            self.score_db_api.select()
             .join(Game)
             .where(Game.name == self._get_game_name().value)
             .order_by(Score.date_submitted)

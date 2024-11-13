@@ -33,15 +33,17 @@ def main():
     framed_api = FramedGameApi(rule=FramedGameRule())
     game_api_provider = GameApiProvider([framed_api])
     channel_provider = ChannelScorerProvider(
-        game_api_provider, Game, Score, Channel, User)
+        game_api_provider, Game, Score, Channel, User
+    )
     score_fetcher_provider = ScoreFetcherProvider(
-        game_api_provider, Game, Score, Channel, User)
+        game_api_provider, Game, Score, Channel, User
+    )
 
     token: str = str(config["DISCORD_TOKEN"])
     intents = Intents.all()
     discord_client: Client = Client(intents=intents)
     command_parser: MessageCommandParser = MessageCommandParser(
-        score_fetcher_provider=score_fetcher_provider
+        score_fetcher_provider=score_fetcher_provider, channel_db_api=Channel
     )
 
     bot = DiscordBot(
@@ -50,7 +52,7 @@ def main():
         channel_scorer_provider=channel_provider,
         channel_db_api=Channel,
         score_fetcher_provider=score_fetcher_provider,
-        command_parser=command_parser
+        command_parser=command_parser,
     )
 
     if action == Actions.RUN:

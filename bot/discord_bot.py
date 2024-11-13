@@ -32,14 +32,12 @@ class DiscordBot:
         if author == self.client.user:
             return
         discord_channel_id = str(message.channel.id)
-        channel = self.channel_db_api.get_or_none(
-            discord_channel_id=discord_channel_id)
+        channel = self.channel_db_api.get_or_none(discord_channel_id=discord_channel_id)
         if not channel:
             print(f"Channel not supported yet: {discord_channel_id}")
             return
 
-        handler: ChannelScorer = self.channel_scorer_provider.provide(
-            channel.id)
+        handler: ChannelScorer = self.channel_scorer_provider.provide(channel.id)
         try:
             score, is_counted = handler.score(message)
             await self.ack(handler, is_counted, message)
@@ -65,12 +63,12 @@ class DiscordBot:
             await message.add_reaction("❌")
 
     async def _handle_message(self, message: Message):
-        if channel := self.channel_db_api.get_or_none(
-            discord_channel_id=str(message.channel.id)
-        ):
-            command: BaseCommand = self.command_parser.parse(
-                channel, message.content)
-        await message.channel.send(command.process())
+        try:
+            commands: list[BaseCommand] = self.command_parser.parse(message)
+            for command in commands:
+                await message.channel.send(command.process())
+        except Exception as e:
+            print(e)
 
     def listen_for_messages(self):
         @self.client.event
@@ -96,13 +94,11 @@ class DiscordBot:
         async def on_ready():
             print(f"We have logged in to backfill as {self.client.user}")
             channel = self.channel_db_api.get(channel_id)
-            discord_channel = self.client.get_channel(
-                int(channel.discord_channel_id))
+            discord_channel = self.client.get_channel(int(channel.discord_channel_id))
             print(f"Backfilling channel: {
                   discord_channel.name}-{channel_id}")  # type: ignore
             chunk_size = 50
-            handler: ChannelScorer = self.channel_scorer_provider.provide(
-                channel.id)
+            handler: ChannelScorer = self.channel_scorer_provider.provide(channel.id)
             last_game = handler.last_scored_game()
             after = None
             if last_game:

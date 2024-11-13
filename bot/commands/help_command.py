@@ -6,13 +6,13 @@ from games.game_type import GameType
 
 
 class HelpCommand(BaseCommand):
-    def process(self):
+    def process(self) -> str:
         commands = table2ascii(
             header=["Command", "Description"],
             body=[
+                ["!gooner score <timeframe>", "Get the current scores for the channel"],
                 ["!gooner <game> score <timeframe>", "Get the current scores"],
                 ["!gooner register <game>", "Register a new game"],
-                ["!gooner list", "List all registered games"],
                 ["!gooner help", "Show this message"],
             ],
             first_col_heading=True,
@@ -21,8 +21,7 @@ class HelpCommand(BaseCommand):
         timeframe_options = table2ascii(
             header=["Timeframe", "Description"],
             body=[
-                [timeframe.value, timeframe.human_readable]
-                for timeframe in Timeframe
+                [timeframe.value, timeframe.human_readable] for timeframe in Timeframe
             ],
             first_col_heading=True,
             style=PresetStyle.thin_rounded,

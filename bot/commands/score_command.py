@@ -15,16 +15,16 @@ class ScoreCommand(BaseCommand):
         self,
         game: GameType,
         timeframe: Timeframe,
-        channel: Channel,
+        discord_server_id: str,
         score_fetcher_provider: ScoreFetcherProvider,
     ):
         self.game = game
         self.timeframe = timeframe
-        self.channel = channel
+        self.discord_server_id = discord_server_id
         self.score_fetcher_provider = score_fetcher_provider
 
     def process(self) -> str:
         response: TotalScores = self.score_fetcher_provider.provide(
-            self.channel.discord_server_id
+            self.discord_server_id
         ).get(self.game, self.timeframe)
         return response.to_discord_message()
