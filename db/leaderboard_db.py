@@ -1,8 +1,5 @@
 from typing import Self
-from dotenv import dotenv_values
 from peewee import Database
-
-config = dotenv_values(".env")
 
 
 class LeaderboardDatabase:
@@ -31,6 +28,7 @@ class LeaderboardDatabase:
         from db.models.game import Game
         from db.models.score import Score
         from db.models.user import User
+
         print("Initializing database")
         self.db.create_tables([Game, Channel, User, Score])
         print("Database initialized")

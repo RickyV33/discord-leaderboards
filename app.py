@@ -1,3 +1,4 @@
+import os
 import sys
 from discord import Client, Intents
 from dotenv import dotenv_values
@@ -17,7 +18,7 @@ from games.framed_game_api import FramedGameApi
 from games.game_api_provider import GameApiProvider
 from games.rules.game_rule import FramedGameRule
 
-config = dotenv_values(".env")
+dotenv_values()
 
 
 def main():
@@ -28,7 +29,7 @@ def main():
         )
     action = Actions(sys.argv[1]) or Actions.RUN
 
-    sqlite = SqliteDatabase(f"sqlite/{config["DB_NAME"]}")
+    sqlite = SqliteDatabase(f"sqlite/{os.environ["DB_NAME"]}")
     database = LeaderboardDatabase(sqlite)
     framed_api = FramedGameApi(rule=FramedGameRule())
     game_api_provider = GameApiProvider([framed_api])
@@ -39,7 +40,7 @@ def main():
         game_api_provider, Game, Score, Channel, User
     )
 
-    token: str = str(config["DISCORD_TOKEN"])
+    token: str = str(os.environ["DISCORD_TOKEN"])
     intents = Intents.all()
     discord_client: Client = Client(intents=intents)
     command_parser: MessageCommandParser = MessageCommandParser(

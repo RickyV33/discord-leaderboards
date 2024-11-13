@@ -9,7 +9,9 @@ COPY db/ /app/db/
 COPY games/ /app/games/
 COPY actions.py /app/actions.py
 COPY app.py /app/app.py
-COPY sqlite/ /app/sqlite/
+
+ENV DB_NAME=${DB_NAME}
+ENV DB_NAME=${DISCORD_TOKEN}
 
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
