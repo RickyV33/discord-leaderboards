@@ -1,5 +1,5 @@
 {
-  "name": "goober-app",
+  "name": "gooner-app",
   "build": {
     "context": ".",
     "dockerfile": "Dockerfile"
@@ -7,7 +7,7 @@
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.12.5"
+      "version": "3.12.7"
     }
   },
   "customizations": {
@@ -23,7 +23,6 @@
         "ms-python.vscode-pylance",
         "ms-python.python",
         "vscodevim.vim",
-        "ms-python.black-formatter",
         "kevinrose.vsc-python-indent",
         "eamodio.gitlens",
         "davidanson.vscode-markdownlint",
@@ -31,7 +30,16 @@
         "github.vscode-github-actions",
         "johnpapa.vscode-peacock",
         "timonwong.shellcheck",
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "dbaeumer.vscode-eslint",
+        "streetsidesoftware.code-spell-checker",
+        "ecmel.vscode-html-css",
+        "visualstudioexptteam.vscodeintellicode",
+        "shd101wyy.markdown-preview-enhanced",
+        "christian-kohler.npm-intellisense",
+        "bradlc.vscode-tailwindcss",
+        "charliermarsh.ruff",
+        "ms-python.mypy-type-checker"
       ]
     }
   },
@@ -39,5 +47,7 @@
   "mounts": [
     "source=${localWorkspaceFolder}/.,target=/app,type=bind,consistency=cached",
     "source=devcontainer-bashhistory,target=/commandhistory,type=volume"
-  ]
+  ],
+
+  "postCreateCommand": "pip install -r requirements.txt"
 }

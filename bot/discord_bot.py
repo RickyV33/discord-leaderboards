@@ -1,14 +1,12 @@
 import asyncio
 from discord import Client, Message
-from table2ascii import table2ascii as t2a, PresetStyle
 
+from bot.command_parser import MessageCommandParser
+from bot.commands.base_command import BaseCommand
 from channels.channel_scorer import ChannelScorer
 from channels.channel_scorer_provider import ChannelScorerProvider
 from channels.score_fetcher_provider import ScoreFetcherProvider
-from channels.timeframe import Timeframe
-from channels.total_scores import TotalScores
 from db.models.channel import Channel
-from games.game_type import GameType
 
 
 class DiscordBot:
@@ -19,74 +17,27 @@ class DiscordBot:
         channel_scorer_provider: ChannelScorerProvider,
         channel_db_api: Channel,
         discord_client: Client,
-        score_fetcher_provider: ScoreFetcherProvider
+        score_fetcher_provider: ScoreFetcherProvider,
+        command_parser: MessageCommandParser,
     ):
         self.token = token
         self.client: Client = discord_client
         self.channel_scorer_provider: ChannelScorerProvider = channel_scorer_provider
         self.channel_db_api: Channel = channel_db_api
         self.score_fetcher_provider = score_fetcher_provider
-
-    def _build_help_command(self) -> str:
-        commands = t2a(
-            header=["Command", "Description"],
-            body=[
-                ["!framed score <timeframe>", "Get the current scores"],
-                ["!framed register <game_type>", "Register a new game"],
-                ["!framed ping", "Check if the bot is alive"],
-                ["!framed help", "Show this message"],
-            ],
-            first_col_heading=True,
-            style=PresetStyle.thin_rounded,
-        )
-        timeframe_options = t2a(
-            header=["Timeframe", "Description"],
-            body=[
-                [timeframe.value, timeframe.human_readable]
-                for timeframe in Timeframe
-            ],
-            first_col_heading=True,
-            style=PresetStyle.thin_rounded,
-        )
-        return f"```\n{commands}```\n```{timeframe_options}\n```"
-
-    async def _handle_bot_command(self, message: Message):
-        commands = message.content.lower().split(" ")
-        action = commands[1]
-        if action == "ping":
-            await message.channel.send("Pong!")
-        else:
-            await message.channel.send(self._build_help_command())
-
-    async def _handle_game_command(self, message: Message):
-        # TODO: this should be handled by another class
-        commands = message.content.lower().split(" ")
-        action = commands[1] if len(commands) > 1 else None
-        if action == "score":
-            timeframe = Timeframe(
-                commands[2]) if commands[2] else Timeframe.ALL
-            discord_channel_id = str(message.channel.id)
-            channel = self.channel_db_api.get_or_none(
-                discord_channel_id=discord_channel_id)
-            response: TotalScores = self.score_fetcher_provider.provide(
-                channel.discord_server_id).get(GameType.FRAMED, timeframe)
-            await message.channel.send(response.to_discord_message())
-        else:
-            await message.channel.send(self._build_help_command())
+        self.command_parser = command_parser
 
     async def _handle_scoring(self, message: Message):
         author = message.author
         if author == self.client.user:
             return
         discord_channel_id = str(message.channel.id)
-        channel = self.channel_db_api.get_or_none(
-            discord_channel_id=discord_channel_id)
+        channel = self.channel_db_api.get_or_none(discord_channel_id=discord_channel_id)
         if not channel:
-            print(f"Channel not supproted yet: {discord_channel_id}")
+            print(f"Channel not supported yet: {discord_channel_id}")
             return
 
-        handler: ChannelScorer = self.channel_scorer_provider.provide(
-            channel.id)
+        handler: ChannelScorer = self.channel_scorer_provider.provide(channel.id)
         try:
             score, is_counted = handler.score(message)
             await self.ack(handler, is_counted, message)
@@ -111,22 +62,31 @@ class DiscordBot:
         else:
             await message.add_reaction("❌")
 
-    def _setup_events(self):
+    async def _handle_message(self, message: Message):
+        try:
+            commands: list[BaseCommand] = self.command_parser.parse(message)
+            for command in commands:
+                await message.channel.send(command.process())
+        except Exception as e:
+            print(e)
+
+    def listen_for_messages(self):
         @self.client.event
         async def on_ready():
-            print(f"Listening...")
+            print("Listening...")
 
         @self.client.event
         async def on_message(message: Message):
-            if message.content.lower().startswith("!gooner"):
-                await self._handle_bot_command(message)
-            elif message.content.lower().startswith("!framed"):
-                await self._handle_game_command(message)
+            if (
+                message.content.lower().startswith("!gooner ")
+                or message.content.lower() == "!gooner"
+            ):
+                await self._handle_message(message)
             else:
                 await self._handle_scoring(message)
 
     def listen(self):
-        self._setup_events()
+        self.listen_for_messages()
         self.client.run(self.token)
 
     def _setup_backfill_events(self, channel_id: str):
@@ -134,18 +94,17 @@ class DiscordBot:
         async def on_ready():
             print(f"We have logged in to backfill as {self.client.user}")
             channel = self.channel_db_api.get(channel_id)
-            discord_channel = self.client.get_channel(
-                int(channel.discord_channel_id))
+            discord_channel = self.client.get_channel(int(channel.discord_channel_id))
             print(f"Backfilling channel: {
                   discord_channel.name}-{channel_id}")  # type: ignore
             chunk_size = 50
-            handler: ChannelScorer = self.channel_scorer_provider.provide(
-                channel.id)
+            handler: ChannelScorer = self.channel_scorer_provider.provide(channel.id)
             last_game = handler.last_scored_game()
             after = None
             if last_game:
-                after = discord_channel.get_partial_message(  # type: ignore
-                    int(last_game.discord_message_id))  # type: ignore
+                after = discord_channel.get_partial_message(
+                    int(last_game.discord_message_id)
+                )
 
             total_messages = 0
             print(f"Starting backfill from {

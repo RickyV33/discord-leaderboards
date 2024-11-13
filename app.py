@@ -4,6 +4,7 @@ from dotenv import dotenv_values
 from peewee import SqliteDatabase
 
 from actions import Actions
+from bot.command_parser import MessageCommandParser
 from channels.channel_scorer_provider import ChannelScorerProvider
 from channels.score_fetcher_provider import ScoreFetcherProvider
 from db.leaderboard_db import LeaderboardDatabase
@@ -32,20 +33,28 @@ def main():
     framed_api = FramedGameApi(rule=FramedGameRule())
     game_api_provider = GameApiProvider([framed_api])
     channel_provider = ChannelScorerProvider(
-        game_api_provider, Game, Score, Channel, User)
+        game_api_provider, Game, Score, Channel, User
+    )
     score_fetcher_provider = ScoreFetcherProvider(
-        game_api_provider, Game, Score, Channel, User)
+        game_api_provider, Game, Score, Channel, User
+    )
 
     token: str = str(config["DISCORD_TOKEN"])
     intents = Intents.all()
     discord_client: Client = Client(intents=intents)
+    command_parser: MessageCommandParser = MessageCommandParser(
+        score_fetcher_provider=score_fetcher_provider,
+        channel_db_api=Channel,
+        game_db_api=Game,
+    )
 
     bot = DiscordBot(
         discord_client=discord_client,
         token=token,
         channel_scorer_provider=channel_provider,
         channel_db_api=Channel,
-        score_fetcher_provider=score_fetcher_provider
+        score_fetcher_provider=score_fetcher_provider,
+        command_parser=command_parser,
     )
 
     if action == Actions.RUN:
