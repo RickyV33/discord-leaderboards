@@ -1,12 +1,7 @@
-from abc import ABC, abstractmethod
-
-from table2ascii import PresetStyle, table2ascii
-
 from bot.commands.base_command import BaseCommand
 from channels.score_fetcher_provider import ScoreFetcherProvider
 from channels.timeframe import Timeframe
 from channels.total_scores import TotalScores
-from db.models.channel import Channel
 from games.game_type import GameType
 
 

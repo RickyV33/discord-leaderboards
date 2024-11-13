@@ -5,6 +5,7 @@ class Actions(Enum):
     RUN = "run"
     INIT_DB = "init_db"
     BACKFILL = "backfill"
+    ADD_GAME = "add_game"
 
     @classmethod
     def parse(cls, action_str: str):

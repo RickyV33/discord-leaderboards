@@ -7,6 +7,7 @@ from channels.channel_scorer import ChannelScorer
 from channels.channel_scorer_provider import ChannelScorerProvider
 from channels.score_fetcher_provider import ScoreFetcherProvider
 from db.models.channel import Channel
+from games.game_type import GameType
 
 
 class DiscordBot:
@@ -77,12 +78,14 @@ class DiscordBot:
 
         @self.client.event
         async def on_message(message: Message):
-            if (
-                message.content.lower().startswith("!gooner ")
-                or message.content.lower() == "!gooner"
-            ):
+            mentions_any_game = any(
+                game.value in message.content.lower() for game in GameType
+            )
+            is_bot_command = message.content.lower().startswith("!gooner")
+
+            if is_bot_command:
                 await self._handle_message(message)
-            else:
+            elif mentions_any_game:
                 await self._handle_scoring(message)
 
     def listen(self):

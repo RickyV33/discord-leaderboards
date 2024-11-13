@@ -7,7 +7,7 @@ from games.game_type import GameType
 from games.rules.game_rule import GameRule
 
 
-class FramedGameApi(GameApi):
+class ThriceGameApi(GameApi):
     def __init__(self, *, rule: GameRule, game_db_api: Game) -> None:
         self.rule = rule
         self.game_db_api = game_db_api
@@ -16,44 +16,53 @@ class FramedGameApi(GameApi):
         return GameType(self.rule.name)
 
     def score(self, message_text: str) -> int:
-        """
-        🎥 🟩 ⬛ ⬛ ⬛ ⬛ ⬛ # 6 points
-        🎥 🟥 🟩 ⬛ ⬛ ⬛ ⬛ # 5 points
-        🎥 🟥 🟥 🟩 ⬛ ⬛ ⬛ # 4 points
-        🎥 🟥 🟥 🟥 🟩 ⬛ ⬛ # 3 points
-        🎥 🟥 🟥 🟥 🟥 🟩 ⬛ # 2 points
-        🎥 🟥 🟥 🟥 🟥 🟥 🟩 # 1 points
-        🎥 🟥 🟥 🟥 🟥 🟥 🟥 # 0 points
-        """
+        return self._get_text_score(message_text)
 
-        score = self.rule.max_score
-        for char in message_text:
-            if char in self.rule.acceptable_chars:
-                if char == "🟥" or char == "⬛":
-                    score -= 1
-                elif char == "🟩":
-                    break
+    def _get_text_score(self, message_text: str) -> int:
+        """
+        Thrice Game #471 → 6 points.
+        """
+        return int(message_text.split("→")[1].split("points")[0].strip())
 
-        return score
+    def _get_emoji_score(self, message_text: str) -> int:
+        """
+        Thrice Game #471 → 6 points.
+        🎲: 3️⃣❌1️⃣2️⃣❌
+        www.example.com
+        """
+        one = "1\ufe0f\u20e3".encode("unicode-escape").decode("ASCII")
+        two = "2\ufe0f\u20e3".encode("unicode-escape").decode("ASCII")
+        three = "3\ufe0f\u20e3".encode("unicode-escape").decode("ASCII")
+        x = "\u274c".encode("unicode-escape").decode("ASCII")
+        emoji_text = (
+            message_text.split("\n")[1].encode("unicode-escape").decode("ASCII")
+        )
+
+        points = {
+            x: emoji_text.count(x) * 3,
+            one: emoji_text.count(one) * 2,
+            two: emoji_text.count(two) * 1,
+            three: emoji_text.count(three) * 0,
+        }
+        return self.rule.max_score - sum(points.values())
 
     def max_score(self) -> int:
         return self.rule.max_score
 
     def round(self, message_text: str) -> int:
         """
-        Framed #123
-        🎥 🟩 ⬛ ⬛ ⬛ ⬛ ⬛
+        Thrice Game #471 → 6 points.
         """
-        lines = message_text.splitlines()
-        round = int(lines[0].split("#")[1].strip())
-        return round
+        return int(message_text.split("#")[1].split("→")[0].strip())
 
     def is_valid(self, message_text: str) -> bool:
-        if message_text.count("Framed") != 1:
+        if message_text.count("Thrice Game") != 1:
             return False
-        elif message_text.count("🎥") != 1:
+        elif message_text.count("🎲") != 1:
             return False
         elif not any(char in message_text for char in self.rule.acceptable_chars):
+            return False
+        elif self._get_text_score(message_text) != self._get_emoji_score(message_text):
             return False
         elif (
             self.score(message_text) < 0
@@ -64,15 +73,6 @@ class FramedGameApi(GameApi):
         round_grace_period = 1
         if self.round(message_text) > self._current_round() + round_grace_period:
             return False
-
-        total_score_chars = 0
-        score_chars = ["🟥", "🟩", "⬛"]
-        limit = 5
-        for char in message_text:
-            if total_score_chars > limit:
-                return False
-            if char in score_chars:
-                total_score_chars += 1
 
         return True
 

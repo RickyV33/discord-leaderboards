@@ -1,5 +1,6 @@
 from discord import Message
 from bot.commands.base_command import BaseCommand
+from bot.commands.deregister_command import DeregisterCommand
 from bot.commands.help_command import HelpCommand
 from bot.commands.register_command import RegisterCommand
 from bot.commands.score_command import ScoreCommand
@@ -35,6 +36,8 @@ class MessageCommandParser:
         first_command: str = commands[0].lower()
         if first_command == "register":
             return self._register_game(message, commands[1:])
+        elif first_command == "deregister":
+            return self._deregister_game(message, commands[1:])
         elif first_command == "score":
             return self._all_scores(message, commands[1:])
         elif first_command.lower() in [game.value for game in GameType]:
@@ -43,6 +46,18 @@ class MessageCommandParser:
             )
         else:
             return self._build_help_command()
+
+    def _deregister_game(self, message: Message, commands: list[str]) -> BaseCommand:
+        if len(commands) != 1:
+            return self._build_help_command()
+
+        game = commands[0].lower()
+        if game not in [game.value for game in GameType]:
+            return self._build_help_command()
+
+        return DeregisterCommand(
+            GameType(game), message, self.channel_db_api, self.game_db_api
+        )
 
     def _all_scores(self, message: Message, commands: list[str]) -> list[BaseCommand]:
         assert message.guild is not None
