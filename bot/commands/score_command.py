@@ -13,11 +13,13 @@ from games.game_type import GameType
 class ScoreCommand(BaseCommand):
     def __init__(
         self,
+        message: str,
         timeframe: Timeframe,
         channel: Channel,
         score_fetcher_provider: ScoreFetcherProvider,
     ):
         self.message = message
+        self.timeframe = timeframe
         self.channel = channel
         self.score_fetcher_provider = score_fetcher_provider
 

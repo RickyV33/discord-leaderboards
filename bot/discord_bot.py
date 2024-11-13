@@ -34,7 +34,7 @@ class DiscordBot:
         channel = self.channel_db_api.get_or_none(
             discord_channel_id=discord_channel_id)
         if not channel:
-            print(f"Channel not supproted yet: {discord_channel_id}")
+            print(f"Channel not supported yet: {discord_channel_id}")
             return
 
         handler: ChannelScorer = self.channel_scorer_provider.provide(

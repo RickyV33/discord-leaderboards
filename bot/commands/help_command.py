@@ -1,5 +1,3 @@
-from abc import ABC, abstractmethod
-
 from table2ascii import PresetStyle, table2ascii
 
 from bot.commands.base_command import BaseCommand
@@ -13,6 +11,7 @@ class HelpCommand(BaseCommand):
             body=[
                 ["!gooner <game> score <timeframe>", "Get the current scores"],
                 ["!gooner register <game>", "Register a new game"],
+                ["!gooner list", "List all registered games"],
                 ["!gooner help", "Show this message"],
             ],
             first_col_heading=True,

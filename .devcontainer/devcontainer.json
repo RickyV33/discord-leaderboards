@@ -7,7 +7,7 @@
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.12.5"
+      "version": "3.12.7"
     }
   },
   "customizations": {
@@ -23,7 +23,6 @@
         "ms-python.vscode-pylance",
         "ms-python.python",
         "vscodevim.vim",
-        "ms-python.black-formatter",
         "kevinrose.vsc-python-indent",
         "eamodio.gitlens",
         "davidanson.vscode-markdownlint",
@@ -38,7 +37,8 @@
         "visualstudioexptteam.vscodeintellicode",
         "shd101wyy.markdown-preview-enhanced",
         "christian-kohler.npm-intellisense",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "charliermarsh.ruff"
       ]
     }
   },
