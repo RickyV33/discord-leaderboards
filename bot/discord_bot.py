@@ -96,7 +96,7 @@ class DiscordBot:
         @self.client.event
         async def on_ready():
             print(f"We have logged in to backfill as {self.client.user}")
-            channel = self.channel_db_api.get(channel_id)
+            channel = self.channel_db_api.get_by_id(channel_id)
             discord_channel = self.client.get_channel(int(channel.discord_channel_id))
             print(f"Backfilling channel: {
                   discord_channel.name}-{channel_id}")  # type: ignore
