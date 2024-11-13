@@ -43,7 +43,9 @@ def main():
     intents = Intents.all()
     discord_client: Client = Client(intents=intents)
     command_parser: MessageCommandParser = MessageCommandParser(
-        score_fetcher_provider=score_fetcher_provider, channel_db_api=Channel
+        score_fetcher_provider=score_fetcher_provider,
+        channel_db_api=Channel,
+        game_db_api=Game,
     )
 
     bot = DiscordBot(

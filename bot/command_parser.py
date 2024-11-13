@@ -6,15 +6,20 @@ from bot.commands.score_command import ScoreCommand
 from channels.score_fetcher_provider import ScoreFetcherProvider
 from channels.timeframe import Timeframe
 from db.models.channel import Channel
+from db.models.game import Game
 from games.game_type import GameType
 
 
 class MessageCommandParser:
     def __init__(
-        self, score_fetcher_provider: ScoreFetcherProvider, channel_db_api: Channel
+        self,
+        score_fetcher_provider: ScoreFetcherProvider,
+        channel_db_api: Channel,
+        game_db_api: Game,
     ):
         self.score_fetcher_provider = score_fetcher_provider
         self.channel_db_api = channel_db_api
+        self.game_db_api = game_db_api
 
     def parse(self, message: Message) -> list[BaseCommand]:
         result = self._parse_message(message)
@@ -74,7 +79,9 @@ class MessageCommandParser:
         if game not in [game.value for game in GameType]:
             return self._build_help_command()
 
-        return RegisterCommand(GameType(game), message, self.channel_db_api)
+        return RegisterCommand(
+            GameType(game), message, self.channel_db_api, self.game_db_api
+        )
 
     def _build_help_command(self) -> BaseCommand:
         return HelpCommand()
