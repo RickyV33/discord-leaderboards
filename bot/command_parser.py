@@ -66,7 +66,7 @@ class MessageCommandParser:
 
         raw_timeframe = commands[0].lower()
         channels = self.channel_db_api.select().where(
-            Channel.discord_channel_id == str(message.channel.id)
+            Channel.discord_server_id == str(message.guild.id)
         )
         all_scores: list[BaseCommand] = []
         for channel in channels:

@@ -1,6 +1,4 @@
-from datetime import date, datetime
-from discord import Message
-from typing import Any
+from datetime import datetime
 
 import pytz
 
@@ -10,7 +8,6 @@ from db.models.channel import Channel
 from db.models.game import Game
 from db.models.score import Score
 from db.models.user import User
-from games.game_api import GameApi
 from games.game_api_provider import GameApiProvider
 from games.game_type import GameType
 
@@ -67,6 +64,10 @@ class ScoreFetcher:
                 username=str(user.discord_name),
                 completed=len(scores),
                 scored=sum(score.score for score in scores),  # type: ignore
+                score_possible=self.game_api_provider.provide(
+                    GameType(game.name)
+                ).max_score()
+                * len(scores),
             )
             for user, scores in scores_by_user.items()
         ]
@@ -106,6 +107,6 @@ class ScoreFetcher:
                 .order_by(Score.round)
                 .first()
             )
-            return oldest_round.round
+            return oldest_round.round if oldest_round else self._get_current_round(game)
 
         return self._get_current_round(game) - timeframe.to_days()
