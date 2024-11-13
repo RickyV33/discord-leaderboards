@@ -48,13 +48,15 @@ class ScoreFetcher:
 
     def _get_user_scores(self, game: Game, timeframe: Timeframe) -> list[UserScore]:
         round_lower_bound = self._get_round_lower_bound(game, timeframe)
-        channels = self.channel_db_api.get_or_none(discord_server_id=self.server_id)
+        channels = self.channel_db_api.select().where(
+            Channel.discord_server_id == self.server_id
+        )
         scores = (
             self.score_db_api.select()
             .where(
                 Score.game == game,
-                Score.round >= round_lower_bound,  # type: ignore
-                Score.channel.contains(channels),
+                Score.round >= round_lower_bound,
+                Score.channel.in_(channels),
             )
             .execute()
         )
@@ -63,11 +65,7 @@ class ScoreFetcher:
             UserScore(
                 username=str(user.discord_name),
                 completed=len(scores),
-                scored=sum(score.score for score in scores),  # type: ignore
-                score_possible=self.game_api_provider.provide(
-                    GameType(game.name)
-                ).max_score()
-                * len(scores),
+                scored=sum(score.score for score in scores),
             )
             for user, scores in scores_by_user.items()
         ]

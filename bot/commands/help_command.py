@@ -18,15 +18,8 @@ class HelpCommand(BaseCommand):
             first_col_heading=True,
             style=PresetStyle.thin_rounded,
         )
-        timeframe_options = table2ascii(
-            header=["Timeframe", "Description"],
-            body=[
-                [timeframe.value, timeframe.human_readable] for timeframe in Timeframe
-            ],
-            first_col_heading=True,
-            style=PresetStyle.thin_rounded,
-        )
 
-        game_options: str = f"Games: {
+        game_options: str = f"Game Options: {
             ', '.join([game.value for game in GameType])}"
-        return f"```{game_options}\n{commands}```\n```{timeframe_options}\n```"
+        timeframe_options = f"Timeframe Options: {', '.join([timeframe.value for timeframe in Timeframe])}"
+        return f"```{game_options}\n{timeframe_options}\n{commands}```\n"

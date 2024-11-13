@@ -11,7 +11,6 @@ class UserScore:
     username: str
     completed: int
     scored: int
-    score_possible: int
 
     def __str__(self) -> str:
         return f"UserScore(username={self.username}, completed={self.completed}, scored={self.scored})"
@@ -44,7 +43,6 @@ class TotalScores:
                 "% Completed",
                 "Scored",
                 "% Scored of Total",
-                "% Scored of Completed",
             ],
             body=[
                 [
@@ -54,7 +52,6 @@ class TotalScores:
                     round(user.completed / self.total_rounds * 100, 2),
                     user.scored,
                     round(user.scored / self.total_score * 100, 2),
-                    round(user.scored / user.score_possible * 100, 2),
                 ]
                 for i, user in enumerate(ranked_users)
             ],
