@@ -102,9 +102,9 @@ class DiscordBot:
             last_game = handler.last_scored_game()
             after = None
             if last_game:
-                after = discord_channel.get_partial_message(  # type: ignore
+                after = discord_channel.get_partial_message(
                     int(last_game.discord_message_id)
-                )  # type: ignore
+                )
 
             total_messages = 0
             print(f"Starting backfill from {

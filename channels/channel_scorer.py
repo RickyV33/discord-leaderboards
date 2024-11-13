@@ -84,7 +84,7 @@ class ChannelScorer:
             self.score_db_api.select()
             .join(Game)
             .where(Game.name == self._get_game_name().value)
-            .order_by(Score.date_submitted)
+            .order_by(Score.date_submitted.desc())
             .get_or_none()
         )
 
