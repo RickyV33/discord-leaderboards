@@ -1,5 +1,5 @@
 {
-  "name": "goober-app",
+  "name": "gooner-app",
   "build": {
     "context": ".",
     "dockerfile": "Dockerfile"
@@ -31,7 +31,14 @@
         "github.vscode-github-actions",
         "johnpapa.vscode-peacock",
         "timonwong.shellcheck",
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "dbaeumer.vscode-eslint",
+        "streetsidesoftware.code-spell-checker",
+        "ecmel.vscode-html-css",
+        "visualstudioexptteam.vscodeintellicode",
+        "shd101wyy.markdown-preview-enhanced",
+        "christian-kohler.npm-intellisense",
+        "bradlc.vscode-tailwindcss"
       ]
     }
   },
@@ -39,5 +46,7 @@
   "mounts": [
     "source=${localWorkspaceFolder}/.,target=/app,type=bind,consistency=cached",
     "source=devcontainer-bashhistory,target=/commandhistory,type=volume"
-  ]
+  ],
+
+  "postCreateCommand": "pip install -r requirements.txt"
 }
