@@ -38,7 +38,8 @@
         "shd101wyy.markdown-preview-enhanced",
         "christian-kohler.npm-intellisense",
         "bradlc.vscode-tailwindcss",
-        "charliermarsh.ruff"
+        "charliermarsh.ruff",
+        "ms-python.mypy-type-checker"
       ]
     }
   },

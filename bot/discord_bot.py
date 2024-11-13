@@ -2,6 +2,7 @@ import asyncio
 from discord import Client, Message
 
 from bot.command_parser import MessageCommandParser
+from bot.commands.base_command import BaseCommand
 from channels.channel_scorer import ChannelScorer
 from channels.channel_scorer_provider import ChannelScorerProvider
 from channels.score_fetcher_provider import ScoreFetcherProvider
@@ -17,7 +18,7 @@ class DiscordBot:
         channel_db_api: Channel,
         discord_client: Client,
         score_fetcher_provider: ScoreFetcherProvider,
-        command_parser: MessageCommandParser
+        command_parser: MessageCommandParser,
     ):
         self.token = token
         self.client: Client = discord_client
@@ -63,17 +64,26 @@ class DiscordBot:
         else:
             await message.add_reaction("❌")
 
+    async def _handle_message(self, message: Message):
+        if channel := self.channel_db_api.get_or_none(
+            discord_channel_id=str(message.channel.id)
+        ):
+            command: BaseCommand = self.command_parser.parse(
+                channel, message.content)
+        await message.channel.send(command.process())
+
     def listen_for_messages(self):
         @self.client.event
         async def on_ready():
-            print(f"Listening...")
+            print("Listening...")
 
         @self.client.event
         async def on_message(message: Message):
-            if message.content.lower().startswith("!gooner"):
-                await self._handle_bot_command(message)
-            elif message.content.lower().startswith("!framed"):
-                await self._handle_game_command(message)
+            if (
+                message.content.lower().startswith("!gooner ")
+                or message.content.lower() == "!gooner"
+            ):
+                await self._handle_message(message)
             else:
                 await self._handle_scoring(message)
 
@@ -97,7 +107,8 @@ class DiscordBot:
             after = None
             if last_game:
                 after = discord_channel.get_partial_message(  # type: ignore
-                    int(last_game.discord_message_id))  # type: ignore
+                    int(last_game.discord_message_id)
+                )  # type: ignore
 
             total_messages = 0
             print(f"Starting backfill from {

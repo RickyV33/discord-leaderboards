@@ -1,6 +1,7 @@
 from table2ascii import PresetStyle, table2ascii
 
 from bot.commands.base_command import BaseCommand
+from channels.timeframe import Timeframe
 from games.game_type import GameType
 
 
@@ -27,15 +28,6 @@ class HelpCommand(BaseCommand):
             style=PresetStyle.thin_rounded,
         )
 
-        game_options = table2ascii(
-            header=["Game"],
-            body=[
-                [game.value, game.human_readable]
-                for game in GameType
-            ],
-            first_col_heading=True,
-            style=PresetStyle.thin_rounded,
-        )
         game_options: str = f"Games: {
             ', '.join([game.value for game in GameType])}"
         return f"```{game_options}\n{commands}```\n```{timeframe_options}\n```"
