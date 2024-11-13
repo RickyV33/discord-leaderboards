@@ -21,11 +21,11 @@ config = dotenv_values(".env")
 
 
 def main():
-    # if len(sys.argv) < 2:
-    #     raise ValueError(
-    #         f"Please provide an action to run. Try: {
-    #             [action.value for action in Actions]}"
-    #     )
+    if len(sys.argv) < 2:
+        raise ValueError(
+            f"Please provide an action to run. Try: {
+                [action.value for action in Actions]}"
+        )
     action = Actions(sys.argv[1]) or Actions.RUN
 
     sqlite = SqliteDatabase(config["DB_NAME"])
