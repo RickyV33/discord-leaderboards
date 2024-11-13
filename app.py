@@ -28,7 +28,7 @@ def main():
         )
     action = Actions(sys.argv[1]) or Actions.RUN
 
-    sqlite = SqliteDatabase(config["DB_NAME"])
+    sqlite = SqliteDatabase(f"sqlite/{config["DB_NAME"]}")
     database = LeaderboardDatabase(sqlite)
     framed_api = FramedGameApi(rule=FramedGameRule())
     game_api_provider = GameApiProvider([framed_api])

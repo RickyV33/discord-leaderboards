@@ -12,15 +12,16 @@ class BaseModel(Model):
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         if "DB_NAME" in config:
-            database = SqliteDatabase(config["DB_NAME"])
+            name = config["DB_NAME"]
         else:
-            database = SqliteDatabase("leaderboard.db")
+            name = "leaderboard.db"
+        database = SqliteDatabase(f"sqlite/{name}")
         with LeaderboardDatabase(database):
             return super().__call__(*args, **kwds)
 
-
     class Meta:
         if "DB_NAME" in config:
-            database = SqliteDatabase(config["DB_NAME"])
+            name = config["DB_NAME"]
         else:
-            database = SqliteDatabase("leaderboard.db")
+            name = "leaderboard.db"
+        database = SqliteDatabase(f"sqlite/{name}")
