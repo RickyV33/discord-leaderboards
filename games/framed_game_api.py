@@ -67,7 +67,7 @@ class FramedGameApi(GameApi):
 
         total_score_chars = 0
         score_chars = ["🟥", "🟩", "⬛"]
-        limit = 5
+        limit = 6
         for char in message_text:
             if total_score_chars > limit:
                 return False
