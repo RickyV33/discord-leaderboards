@@ -23,3 +23,6 @@ class HelpCommand(BaseCommand):
             ', '.join([game.value for game in GameType])}"
         timeframe_options = f"Timeframe Options: {', '.join([timeframe.value for timeframe in Timeframe])}"
         return f"```{game_options}\n{timeframe_options}\n{commands}```\n"
+    
+    def process_mobile(self) -> str:
+        self.process()

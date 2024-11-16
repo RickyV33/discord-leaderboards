@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from dataclasses import dataclass
 
 from channels.timeframe import Timeframe
@@ -48,6 +49,36 @@ class TotalScores:
             style=PresetStyle.thin_rounded,
         )
         return f"```\n{self.game.value.capitalize()}\nTotal Rounds Possible: {self.total_rounds}\nTotal Points Possible: {self.total_score}\n{table}\n```"
+
+    def to_mobile_discord_message(self) -> str:
+        body = self.get_body()
+        """
+        [
+            ["Rank", "Username", "Completed", "Scored", "% Scored of Completed"],
+            [1, "user1", "10 (100%)", "10 (100%)", "100%"],
+        ]
+        """
+        """
+            Total Points Possible: 10
+            Total Rounds Possible: 10
+            Timeframe: a week ago
+            * #1: 
+              * User: **user1**
+              * **Completed**: 10 (100%)
+              * **Scored**: 10 (100%)
+              * **% Scored of Completed**: 100%
+        """
+        as_message = f"**Total Rounds Possible**: {self.total_rounds}\n"
+        as_message += f"**Total Points Possible**: {self.total_score}\n"
+        as_message += f"**Timeframe**: {self.timeframe.human_readable}\n"
+        for user in body:
+            as_message += f"* **#{user[0]}** {user[1]}\n"
+            as_message += f"  * **User**: {user[1]}\n"
+            as_message += f"  * **Completed**: {user[2]}\n"
+            as_message += f"  * **Scored**: {user[3]}\n"
+            as_message += f"  * **% Scored of Completed**: {user[4]}%\n"
+
+        return as_message
 
     def get_body(self):
         ranked_users = sorted(

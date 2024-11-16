@@ -23,3 +23,9 @@ class ScoreCommand(BaseCommand):
             self.discord_server_id
         ).get(self.game, self.timeframe)
         return response.to_discord_message()
+
+    def process_mobile(self) -> str:
+        response: TotalScores = self.score_fetcher_provider.provide(
+            self.discord_server_id
+        ).get(self.game, self.timeframe)
+        return response.to_mobile_discord_message()

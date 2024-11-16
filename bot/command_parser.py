@@ -30,6 +30,7 @@ class MessageCommandParser:
 
     def _parse_message(self, message: Message) -> list[BaseCommand] | BaseCommand:
         commands: list[str] = message.content.lower().split(" ")[1:]
+        commands = [command for command in commands if command != "desktop"]
         if len(commands) == 0:
             return self._build_help_command()
 

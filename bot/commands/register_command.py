@@ -31,3 +31,6 @@ class RegisterCommand(BaseCommand):
             return f"Registered {self.game.value} scoring on this channel"
 
         return f"{self.game.value} is already registered on this channel"
+
+    def process_mobile(self) -> str:
+        return self.process()

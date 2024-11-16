@@ -32,3 +32,6 @@ class DeregisterCommand(BaseCommand):
 
         registered.delete_instance()
         return f"{self.game.value} has been removed from the channel"
+
+    def process_mobile(self) -> str:
+        return self.process()
