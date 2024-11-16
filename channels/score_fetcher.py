@@ -66,6 +66,9 @@ class ScoreFetcher:
                 username=str(user.discord_name),
                 completed=len(scores),
                 scored=sum(score.score for score in scores),
+                total_completed_score=len(scores) * self.game_api_provider.provide(
+                    GameType(game.name)
+                ).max_score(),
             )
             for user, scores in scores_by_user.items()
         ]

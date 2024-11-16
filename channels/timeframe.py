@@ -1,6 +1,5 @@
 from datetime import datetime
 from enum import Enum
-from typing import Self
 
 
 class Timeframe(Enum):
@@ -9,6 +8,7 @@ class Timeframe(Enum):
     SIX_MONTHS = "six_months"
     MONTH = "month"
     WEEK = "week"
+    NEW_AGE = "new_age"
 
     @property
     def datetime(self) -> datetime:
@@ -22,6 +22,8 @@ class Timeframe(Enum):
             return datetime.now().replace(day=datetime.now().day - 30)
         elif self == Timeframe.WEEK:
             return datetime.now().replace(day=datetime.now().day - 7)
+        elif self == Timeframe.NEW_AGE:
+            return datetime.fromisoformat("2024-11-14")
         else:
             raise ValueError(f"Invalid timeframe: {self}")
 
@@ -36,6 +38,9 @@ class Timeframe(Enum):
             return 30
         elif self == Timeframe.WEEK:
             return 7
+        elif self == Timeframe.NEW_AGE:
+            delta = datetime.now() - datetime.fromisoformat("2024-11-14")
+            return delta.days
         else:
             raise ValueError(f"Invalid timeframe: {self}")
 
@@ -51,5 +56,7 @@ class Timeframe(Enum):
             return "the past month"
         elif self == Timeframe.WEEK:
             return "the past week"
+        elif self == Timeframe.NEW_AGE:
+            return "after the new age, Nov 14, 2024"
         else:
             raise ValueError(f"Invalid timeframe: {self}")
