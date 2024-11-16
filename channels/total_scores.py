@@ -72,7 +72,7 @@ class TotalScores:
         as_message += f"**Total Points Possible**: {self.total_score}\n"
         as_message += f"**Timeframe**: {self.timeframe.human_readable}\n"
         for user in body:
-            as_message += f"* **#{user[0]}** {user[1]}\n"
+            as_message += f"* **#{user[0]}**\n"
             as_message += f"  * **User**: {user[1]}\n"
             as_message += f"  * **Completed**: {user[2]}\n"
             as_message += f"  * **Scored**: {user[3]}\n"

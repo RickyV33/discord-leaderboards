@@ -21,8 +21,10 @@ class HelpCommand(BaseCommand):
 
         game_options: str = f"Game Options: {
             ', '.join([game.value for game in GameType])}"
-        timeframe_options = f"Timeframe Options: {', '.join([timeframe.value for timeframe in Timeframe])}"
-        return f"```{game_options}\n{timeframe_options}\n{commands}```\n"
-    
+        timeframe_options = f"Timeframe Options: {
+            ', '.join([timeframe.value for timeframe in Timeframe])}"
+        options = "Additional: include 'desktop' anywhere in the message and it will show a table"
+        return f"```{game_options}\n{timeframe_options}\n{options}\n{commands}```\n"
+
     def process_mobile(self) -> str:
-        self.process()
+        return self.process()
