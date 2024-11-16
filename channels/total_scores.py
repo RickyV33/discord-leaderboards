@@ -64,7 +64,8 @@ class TotalScores:
                 user.username,
                 f"{user.completed} ({completed_percentage}%)",
                 f"{user.scored} ({scored_percentage}%)",
-                round(user.scored / user.total_completed_score, 2)
+                round(user.scored / user.total_completed_score *
+                      100, 2) if user.total_completed_score else 0
             ]
             items.append(item)
 
