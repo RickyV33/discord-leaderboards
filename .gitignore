@@ -6,3 +6,6 @@ leaderboard.db
 *.sql
 .vscode/
 *.mypy_cache
+
+
+**__pycache__/
