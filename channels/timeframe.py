@@ -1,6 +1,8 @@
 from datetime import datetime
 from enum import Enum
 
+import pytz
+
 
 class Timeframe(Enum):
     ALL = "all"
@@ -39,7 +41,11 @@ class Timeframe(Enum):
         elif self == Timeframe.WEEK:
             return 7
         elif self == Timeframe.NEW_AGE:
-            delta = datetime.now() - datetime.fromisoformat("2024-11-14")
+            today_in_pacific: datetime = datetime.now(
+                pytz.timezone("US/Pacific"))
+            delta = today_in_pacific - \
+                datetime.fromisoformat(
+                    "2024-11-13").replace(tzinfo=pytz.timezone("US/Pacific"))
             return delta.days
         else:
             raise ValueError(f"Invalid timeframe: {self}")
