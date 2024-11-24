@@ -55,12 +55,13 @@ class ScoreFetcher:
             self.score_db_api.select()
             .where(
                 Score.game == game,
-                Score.round >= round_lower_bound,
+                Score.round > round_lower_bound,
                 Score.channel.in_(channels),
             )
             .execute()
         )
-        scores_by_user: dict[User, list[Score]] = self._populate_scores_by_user(scores)
+        scores_by_user: dict[User, list[Score]
+                             ] = self._populate_scores_by_user(scores)
         return [
             UserScore(
                 username=str(user.discord_name),
