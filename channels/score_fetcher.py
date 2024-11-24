@@ -35,9 +35,7 @@ class ScoreFetcher:
     ) -> TotalScores:
         game = self.game_db_api.get_or_none(name=game_type.value)
         total_possible = self._get_total_possible_points(game, timeframe)
-        rounds = self._get_current_round(game) - self._get_round_lower_bound(
-            game, timeframe
-        )
+        rounds = self._total_rounds_played(game, timeframe)
         return TotalScores(
             users=self._get_user_scores(game, timeframe),
             total_score=total_possible,
@@ -82,16 +80,16 @@ class ScoreFetcher:
             scores_by_user[score.user].append(score)
         return scores_by_user
 
+    def _total_rounds_played(self, game: Game, timeframe: Timeframe) -> int:
+        current_round = self._get_current_round(game)
+        round_lb = self._get_round_lower_bound(game, timeframe)
+        total_rounds = current_round - round_lb
+        return total_rounds
+
     def _get_total_possible_points(self, game: Game, timeframe: Timeframe) -> int:
         game_api = self.game_api_provider.provide(GameType(game.name))
         max_score = game_api.max_score()
-        if timeframe == Timeframe.ALL:
-            round_lb = self._get_round_lower_bound(game, timeframe)
-            total_rounds_played = self._get_current_round(game) - round_lb
-            total_possible = max_score * total_rounds_played
-        else:
-            total_possible = max_score * timeframe.to_days()
-
+        total_possible = max_score * self._total_rounds_played(game, timeframe)
         return total_possible
 
     def _get_current_round(self, game: Game) -> int:

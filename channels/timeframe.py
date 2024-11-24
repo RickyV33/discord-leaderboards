@@ -57,6 +57,6 @@ class Timeframe(Enum):
         elif self == Timeframe.WEEK:
             return "the past week"
         elif self == Timeframe.NEW_AGE:
-            return "after the new age, Nov 14, 2024"
+            return "from the new age Nov 14, 2024 and on"
         else:
             raise ValueError(f"Invalid timeframe: {self}")
