@@ -99,16 +99,9 @@ class ScoreFetcher:
         return current_round
 
     def _get_round_lower_bound(self, game: Game, timeframe: Timeframe) -> int:
+        # NON INCLUSIVE
+
         if timeframe == Timeframe.ALL:
-            channels = self.channel_db_api.select().where(
-                Channel.discord_server_id == self.server_id
-            )
-            oldest_round = (
-                self.score_db_api.select()
-                .where(Score.game == game, Score.channel.in_(channels))
-                .order_by(Score.round)
-                .first()
-            )
-            return oldest_round.round if oldest_round else self._get_current_round(game)
+            return 0  # The first round
 
         return self._get_current_round(game) - timeframe.to_days()
