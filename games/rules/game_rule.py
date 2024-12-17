@@ -20,6 +20,7 @@ class FramedGameRule(GameRule):
             reaction_response="🎥",
         )
 
+
 class ThriceGameRule(GameRule):
     def __init__(self):
         super().__init__(

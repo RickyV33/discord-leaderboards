@@ -28,7 +28,7 @@ class DiscordBot:
         self.score_fetcher_provider = score_fetcher_provider
         self.command_parser = command_parser
 
-    async def _handle_scoring(self, message: Message):
+    async def _handle_scoring(self, message: Message) -> bool:
         author = message.author
         if author == self.client.user:
             return
@@ -46,6 +46,7 @@ class DiscordBot:
             await self.ack(handler, is_counted, message)
             print(f"Scored message: {message.id} for user {
                   message.author} with score: {score} as counted: {is_counted}")
+            return is_counted
         except Exception as e:
             if not str(e).startswith("Unable to score message"):
                 print(e)
@@ -58,6 +59,7 @@ class DiscordBot:
                 has_reaction = True
                 break
         if has_reaction:
+            print(f"Already reacted to message: {message.id}")
             return
         print(f"Adding reaction to message: {message.id}")
         if is_counted:
@@ -118,6 +120,7 @@ class DiscordBot:
                 )
 
             total_messages = 0
+            total_game_messages = 0
             print(f"Starting backfill from {
                   after.created_at if after else 'beginning'}")
             while iterator := discord_channel.history(  # type: ignore
@@ -128,12 +131,16 @@ class DiscordBot:
                     break
                 total_messages += len(messages)
                 for message in messages:
-                    await self._handle_scoring(message)
+                    is_counted = await self._handle_scoring(message)
+                    if is_counted:
+                        total_game_messages += 1
                 after = messages[-1].created_at
                 # 50 requests per second
                 one_second = 1
                 await asyncio.sleep(one_second)
             print(f"Processed {total_messages} messages")
+            print(f"Processed {total_game_messages} game messages")
+            await self.client.close()
 
     def backfill(self, channel_id: str):
         self._setup_backfill_events(channel_id)

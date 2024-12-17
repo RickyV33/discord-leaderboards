@@ -6,7 +6,7 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.13"
+      "version": "3.12"
     },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/nils-geistmann/devcontainers-features/zsh:0": {

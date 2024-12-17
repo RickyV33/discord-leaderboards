@@ -1,7 +1,7 @@
 import os
 import sys
 from discord import Client, Intents
-from dotenv import dotenv_values, load_dotenv
+from dotenv import load_dotenv
 from peewee import SqliteDatabase
 
 from actions import Actions

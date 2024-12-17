@@ -35,7 +35,8 @@ class ThriceGameApi(GameApi):
         three = "3\ufe0f\u20e3".encode("unicode-escape").decode("ASCII")
         x = "\u274c".encode("unicode-escape").decode("ASCII")
         emoji_text = (
-            message_text.split("\n")[1].encode("unicode-escape").decode("ASCII")
+            message_text.split("\n")[1].encode(
+                "unicode-escape").decode("ASCII")
         )
 
         points = {
